@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-round1",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test:watch": "nodemon -x lab -- -v"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "code": "^1.5.0",
+    "lab": "^6.2.0",
+    "nodemon": "^1.7.1"
+  }
+}
