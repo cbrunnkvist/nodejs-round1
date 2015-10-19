@@ -6,12 +6,11 @@ var expect = require('code').expect;
 
 lab.describe('payment gateway library', function() {
   var pg;
-  var sampleRequest;
+  var request;
+
   lab.beforeEach(function(done) {
     var PaymentGateway = require('../../lib/paymentGateway');
     pg = new PaymentGateway();
-
-    sampleRequest = createSampleRequest();
 
     done();
   });
@@ -33,8 +32,8 @@ lab.describe('payment gateway library', function() {
     };
   }
 
-  function setupProviderDoubles() {
-    pg._providers = {
+  function createProviderDoubles() {
+    var providers = {
       paypal: {
         submitRequest: function(data, callback) {
           callback(null, {
@@ -54,6 +53,7 @@ lab.describe('payment gateway library', function() {
         }
       }
     };
+    return providers;
   }
 
   lab.it('comes with built-in payment providers', function(done) {
@@ -63,25 +63,31 @@ lab.describe('payment gateway library', function() {
   });
 
   lab.it('can process single credit card payments', function(done) {
-    setupProviderDoubles();
-    pg.processPayment(sampleRequest, function(err, result) {
+    pg._providers = createProviderDoubles();
+    var request = createSampleRequest();
+    request.payment.currency='SEK';
+    pg.processPayment(request, function(err, result) {
       expect(result.txId).to.exist();
-      expect(result.requestData.payment).to.equal(sampleRequest.payment);
+      expect(result.requestData.payment).to.equal(request.payment);
       done();
     });
   });
 
   lab.it('uses Paypal if credit card type is AMEX', function(done) {
-    setupProviderDoubles();
-    sampleRequest.card.number = '343456789012345';
-    pg.processPayment(sampleRequest, function(err, result) {
+    pg._providers = createProviderDoubles();
+    var request = createSampleRequest();
+
+    request.card.number = '343456789012345';
+    request.payment.currency = 'USD';
+
+    pg.processPayment(request, function(err, result) {
       expect(result.processor).to.equal('paypal');
       done();
     });
   });
 
   lab.it('uses Paypal if currency is USD, EUR, or AUD', function(done) {
-    setupProviderDoubles();
+    pg._providers = createProviderDoubles();
 
     var testCurrencies = ['USD', 'EUR', 'AUD'];
 
@@ -96,7 +102,8 @@ lab.describe('payment gateway library', function() {
     var latch = new CountdownLatch(testCurrencies.length, done);
 
     testCurrencies.forEach(function(currency) {
-      var request = createSampleRequest(currency);
+      var request = createSampleRequest();
+      request.payment.currency = currency;
       pg.processPayment(request, function(err, result) {
         expect(result.processor).to.equal('paypal');
         latch.trigger();
@@ -104,7 +111,15 @@ lab.describe('payment gateway library', function() {
     });
   });
 
-  lab.it('uses Braintree if currency is _not_ USD, EUR, or AUD');
+  lab.it('uses Braintree if currency is _not_ USD, EUR, or AUD', function(done) {
+    pg._providers = createProviderDoubles();
+    var request = createSampleRequest();
+
+    pg.processPayment(request, function(err, result) {
+      expect(result.processor).to.equal('braintree');
+      done();
+    });
+  });
 
   lab.it('throws an error if credit card is AMEX but currency is not USD');
 });
