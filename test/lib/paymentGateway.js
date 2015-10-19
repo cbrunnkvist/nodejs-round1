@@ -12,7 +12,9 @@ var expect = Code.expect;
 
 describe('payment gateway library', function() {
   function pluckIds(items) {
-    return items.map(function(p){return p.id});
+    return items.map(function(p) {
+      return p.id
+    });
   }
 
   it('comes with built-in payment providers', function(done) {
@@ -25,29 +27,42 @@ describe('payment gateway library', function() {
     done();
   });
 
-  it('supports adding additional payment providers', function(done) {
+  it('can process single credit card payments', function(done) {
     var PaymentGateway = require('../../lib/paymentGateway');
     var pg = new PaymentGateway();
 
-    var builtInIds = pluckIds(pg.getProviders());
-    var ProviderOne = {
-      id: 'provider1',
-      name: 'Provider 1'
-    };
-    var ProviderTwo = {
-      id: 'provider2',
-      name: 'Provider 2'
+    var expDate = new Date();
+    expDate.setDate(expDate.getDate() + 1);
+
+    pg._providers = [{
+      id: 'braintree',
+      name: 'Braintree',
+      submitRequest: function(data, callback) {
+        callback(null, {
+          txId: '12345678',
+          requestData: data
+        });
+      }
+    }];
+
+    var sampleRequest = {
+      payment: {
+        amount: 111,
+        currency: 'THB',
+      },
+      card: {
+        holder: 'A Full Name',
+        number: '4111 1111 1111 1111',
+        expireDate: expDate,
+        ccv: '000'
+      }
     };
 
-    pg.addProvider(ProviderOne);
-    pg.addProvider(ProviderTwo);
-
-    var providerIds = pluckIds(pg.getProviders());
-    expect(providerIds).to.include([ProviderOne.id, ProviderTwo.id]);
-    expect(providerIds).to.include(builtInIds);
-    done();
+    pg.processPayment(sampleRequest, function(err, result) {
+      expect(result.txId).to.exist();
+      expect(result.requestData.payment).to.equal(sampleRequest.payment);
+      done();
+    });
   });
-
-  it('can process single credit card payments');
 
 });
