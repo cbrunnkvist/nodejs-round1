@@ -5,6 +5,7 @@ var lab = exports.lab = Lab.script();
 var expect = require('code').expect;
 
 lab.describe('payment gateway library', function() {
+  var AMEX_CARD = '343456789012345';
   var pg;
   var request;
 
@@ -65,7 +66,7 @@ lab.describe('payment gateway library', function() {
   lab.it('can process single credit card payments', function(done) {
     pg._providers = createProviderDoubles();
     var request = createSampleRequest();
-    request.payment.currency='SEK';
+    request.payment.currency = 'SEK';
     pg.processPayment(request, function(err, result) {
       expect(result.txId).to.exist();
       expect(result.requestData.payment).to.equal(request.payment);
@@ -77,10 +78,11 @@ lab.describe('payment gateway library', function() {
     pg._providers = createProviderDoubles();
     var request = createSampleRequest();
 
-    request.card.number = '343456789012345';
+    request.card.number = AMEX_CARD;
     request.payment.currency = 'USD';
 
     pg.processPayment(request, function(err, result) {
+      expect(err).to.not.exist();
       expect(result.processor).to.equal('paypal');
       done();
     });
@@ -121,5 +123,15 @@ lab.describe('payment gateway library', function() {
     });
   });
 
-  lab.it('throws an error if credit card is AMEX but currency is not USD');
+  lab.it('returns an error if credit card is AMEX but currency is not USD', function(done) {
+    var request = createSampleRequest();
+    request.card.number = AMEX_CARD;
+    request.payment.currency = 'SEK';
+
+    pg.processPayment(request, function(err, result) {
+      expect(err).to.be.an.instanceOf(Error);
+      done();
+    });
+  });
+
 });
