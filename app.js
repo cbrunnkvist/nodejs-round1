@@ -18,27 +18,37 @@ var ORDER_SCHEMA = {
   'cc-csc': Joi.string().regex(/^[0-9]{3,4}$/).required()
 };
 
+function mapOrderToPaymentRequest(order) {
+  var paymentRequest = {
+    payment: {
+      amount: order['transaction-amount'],
+      currency: order['transaction-currency'],
+    },
+    card: {
+      holder: order['cc-name'],
+      number: order['cc-number'],
+      expireDate: new Date(parseInt(order['cc-exp'].year), parseInt(order['cc-exp'].month)),
+      cvv: order['cc-csc']
+    }
+  };
+  return paymentRequest;
+}
+
 var actions = {
   payment: function(request, reply) {
-    var pl = request.payload;
-    var paymentRequest = {
-      payment: {
-        amount: pl['transaction-amount'],
-        currency: pl['transaction-currency'],
-      },
-      card: {
-        holder: pl['cc-name'],
-        number: pl['cc-number'],
-        expireDate: new Date(parseInt(pl['cc-exp'].year), parseInt(pl['cc-exp'].month)),
-        ccv: pl['cc-csc']
-      }
-    };
-
+    var paymentRequest = mapOrderToPaymentRequest(request.payload);
     pg.processPayment(paymentRequest, function(err, result) {
       if (err) {
-        reply(Boom.badRequest(err.message));
+        console.dir(err, {
+          depth: 4
+        });
+        if (err.paymentGatewayError) {
+          return reply(Boom.badRequest(err.paymentGatewayError));
+        } else {
+          return reply(Boom.wrap(err, 400));
+        }
       } else {
-        reply(result);
+        return reply(result);
       }
     });
   }

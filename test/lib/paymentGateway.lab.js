@@ -28,7 +28,7 @@ lab.describe('payment gateway library', function() {
         holder: 'A Full Name',
         number: '4111 1111 1111 1111',
         expireDate: expDate,
-        ccv: '000'
+        cvv: '000'
       }
     };
   }
