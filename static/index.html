@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Payment gateway demo</title>
+    <style>
+      fieldset {
+        border: none;
+      }
+      legend {
+        font-weight: bolder;
+      }
+    </style>
+  </head>
+  <body>
+    <form action="/payment" method="post">
+      <fieldset>
+        <legend>Order</legend>
+
+        <label for="transaction-amount">Price (amount)</label>
+        <input id="transaction-amount" type="text" name="transaction-amount" value="42" />
+        <label for="transaction-currency">Currency</label>
+        <select id="transaction-currency" name="transaction-currency">
+           <option>USD</option>
+           <option>EUR</option>
+           <option>THB</option>
+           <option>HKD</option>
+           <option>SGD</option>
+           <option>AUD</option>
+        </select>
+        <br />
+
+        <label for="order-name">Customer Full name</label>
+        <input id="order-price" type="text" name="order-name" autocomplete="name" value="John Appleseed" />
+      </fieldset>
+      <fieldset>
+        <legend>Payment</legend>
+
+        <label for="cc-name">Credit card holder name</label>
+        <input id="cc-name" type="text" name="cc-name" autocomplete="cc-name" value="Elizabeth Chapman" />
+        <br />
+
+        <label for="cc-number">Credit card number</label>
+        <input id="cc-number" type="text" name="cc-number" autocomplete="cc-number" value="3400 0000 0000 000" />
+        <br />
+
+        <label for="cc-exp-year">Credit card expiration</label>
+        <input id="cc-exp-year" type="date" name="cc-exp[year]" autocomplete="cc-exp-year" placeholder="YYYY" value="2015"/>
+        <input id="cc-exp-month" type="date" name="cc-exp[month]" autocomplete="cc-exp-month" placeholder="MM" value="12"/>
+        <br />
+
+        <label for="cc-csc">Credit card CCV</label>
+        <input id="cc-csc" type="date" name="cc-csc" autocomplete="cc-csc" placeholder="000" value="987" />
+      </fieldset>
+      <button type="submit">Submit order</button>
+    </form>
+
+  </body>
+</html>
