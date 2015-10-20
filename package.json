@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "lab -v",
-    "test:watch": "nodemon -x npm test"
+    "test": "lab -v test/*.lab.js test/lib/*.lab.js",
+    "test:watch": "nodemon -x npm test",
+    "test:e2e": "lab -v test/e2e/*.lab.js || true"
   },
   "dependencies": {
     "boom": "^2.9.0",
