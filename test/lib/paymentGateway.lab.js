@@ -5,7 +5,7 @@ var lab = exports.lab = Lab.script();
 var expect = require('code').expect;
 
 lab.describe('payment gateway library', function() {
-  var AMEX_CARD = '343456789012345';
+  var AMEX_SAMPLE = '343456789012345';
   var pg;
   var request;
 
@@ -78,7 +78,7 @@ lab.describe('payment gateway library', function() {
     pg._providers = createProviderDoubles();
     var request = createSampleRequest();
 
-    request.card.number = AMEX_CARD;
+    request.card.number = AMEX_SAMPLE;
     request.payment.currency = 'USD';
 
     pg.processPayment(request, function(err, result) {
@@ -125,7 +125,7 @@ lab.describe('payment gateway library', function() {
 
   lab.it('returns an error if credit card is AMEX but currency is not USD', function(done) {
     var request = createSampleRequest();
-    request.card.number = AMEX_CARD;
+    request.card.number = AMEX_SAMPLE;
     request.payment.currency = 'SEK';
 
     pg.processPayment(request, function(err, result) {

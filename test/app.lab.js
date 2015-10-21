@@ -55,7 +55,7 @@ lab.describe('web app', function() {
       paypal: {
         submitRequest: function(data, callback) {
           requestSpy = data;
-          callback(new Error('aborted'));
+          callback(null, {});
         }
       }
     };

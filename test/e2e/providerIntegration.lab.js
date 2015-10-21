@@ -4,11 +4,9 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var expect = require('code').expect;
 var Hapi = require('hapi');
+var CardUtil = require('../../lib/util/card');
 
 lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
-  var AMEX_CARD = '3714 4963 5398 431';
-  var VISA_CARD = '4111 1111 1111 1111';
-
   var server;
   var expDate;
 
@@ -28,7 +26,7 @@ lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
       url: '/payment',
       payload: formData,
     }, function(response) {
-      expect(response.result.error).to.not.exist();
+      response.result.error && expect(response.result.message).to.not.exist();
       expect(response.statusCode).to.equal(200);
       done();
     });
@@ -40,7 +38,7 @@ lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
       'transaction-currency': 'USD',
       'order-name': 'Order Name',
       'cc-name': 'Cc Name',
-      'cc-number': AMEX_CARD,
+      'cc-number': CardUtil.MASTERCARD_SAMPLE,
       'cc-exp': {
         year: expDate.getUTCFullYear(),
         month: 12
@@ -56,7 +54,7 @@ lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
       'transaction-currency': 'THB',
       'order-name': 'Order Name',
       'cc-name': 'Cc Name',
-      'cc-number': VISA_CARD,
+      'cc-number': CardUtil.VISA_SAMPLE,
       'cc-exp': {
         year: expDate.getUTCFullYear(),
         month: 12
