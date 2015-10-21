@@ -1,5 +1,6 @@
 var PaymentGateway = require('./lib/paymentGateway');
 var pg;
+var Database = require('./lib/database');
 var Joi = require('joi');
 var Boom = require('boom');
 var Inert = require('inert');
@@ -44,6 +45,8 @@ var actions = {
         });
         return reply(Boom.badRequest((err.paymentGatewayError || err)));
       } else {
+        var db = Database.connection();
+        db.save(result);
         return reply(result);
       }
     });
