@@ -7,7 +7,7 @@ var Hapi = require('hapi');
 
 lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
   var AMEX_CARD = '3714 4963 5398 431';
-  var VISA_CARD = '4012 8888 8888 1881';
+  var VISA_CARD = '4111 1111 1111 1111';
 
   var server;
   var expDate;
@@ -22,14 +22,14 @@ lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
     done();
   });
 
-  function postingFormShouldPass(data, done) {
+  function postingFormShouldPass(formData, done) {
     server.inject({
       method: 'POST',
       url: '/payment',
       payload: formData,
     }, function(response) {
-      expect(response.statusCode).to.equal(200);
       expect(response.result.error).to.not.exist();
+      expect(response.statusCode).to.equal(200);
       done();
     });
   }
@@ -50,6 +50,20 @@ lab.describe('end-to-end providers integration', {timeout: 60000}, function() {
     postingFormShouldPass(formData, done);
   });
 
-  lab.it('can process a sandbox payment against Braintree');
+  lab.it('can process a sandbox payment against Braintree', function(done) {
+    var formData = {
+      'transaction-amount': 300,
+      'transaction-currency': 'THB',
+      'order-name': 'Order Name',
+      'cc-name': 'Cc Name',
+      'cc-number': VISA_CARD,
+      'cc-exp': {
+        year: expDate.getUTCFullYear(),
+        month: 12
+      },
+      'cc-csc': '000'
+    };
+    postingFormShouldPass(formData, done);
+  });
 
 });

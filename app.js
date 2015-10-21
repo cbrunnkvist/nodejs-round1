@@ -42,11 +42,7 @@ var actions = {
         console.dir(err, {
           depth: 4
         });
-        if (err.paymentGatewayError) {
-          return reply(Boom.badRequest(err.paymentGatewayError));
-        } else {
-          return reply(Boom.wrap(err, 400));
-        }
+        return reply(Boom.badRequest((err.paymentGatewayError || err)));
       } else {
         return reply(result);
       }
